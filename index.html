@@ -1,14 +1,159 @@
-<!doctype html>
-<html lang="en">
+<!DOCTYPE html>
+<html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Hello World</title>
-  <link href='/style.css' rel='stylesheet'>
+<meta charset="UTF-8">
+<title>컨테이너 창고 관리</title>
+
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        display: flex;
+        margin: 20px;
+    }
+
+    .grid {
+        display: grid;
+        grid-template-columns: 40px repeat(10, 60px);
+        gap: 10px;
+    }
+
+    .box {
+        width: 60px;
+        height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        color: white;
+        cursor: pointer;
+        border-radius: 6px;
+    }
+
+    .occupied {
+        background-color: #e74c3c;
+    }
+
+    .empty {
+        background-color: #2ecc71;
+    }
+
+    .header {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #555;
+        color: white;
+        border-radius: 6px;
+        font-size: 11px;
+        cursor: pointer;
+    }
+
+    .side-panel {
+        margin-left: 40px;
+    }
+
+    .stats {
+        font-size: 18px;
+        margin-bottom: 10px;
+    }
+
+    button {
+        padding: 10px;
+        margin-top: 10px;
+        cursor: pointer;
+    }
+</style>
 </head>
+
 <body>
-  <h1>Hello, world!</h1>
-  <button onclick="console.log('hello');">Press me</button>
-  <script defer type="text/javascript" src="/main.js"></script>
+
+<div id="grid" class="grid"></div>
+
+<div class="side-panel">
+    <div class="stats">Occupied: <span id="occupiedCount">0</span></div>
+    <div class="stats">Empty: <span id="emptyCount">100</span></div>
+    <div class="stats">Occupancy Rate: <span id="rate">0%</span></div>
+
+    <button onclick="resetAll()">전체 초기화</button>
+</div>
+
+<script>
+    const grid = document.getElementById("grid");
+    const size = 10;
+    let total = size * size;
+
+    // 좌상단 빈칸
+    grid.appendChild(document.createElement("div"));
+
+    // 열 헤더
+    for (let c = 0; c < size; c++) {
+        let header = document.createElement("div");
+        header.className = "header";
+        header.innerText = c + 1;
+        header.onclick = () => toggleColumn(c);
+        grid.appendChild(header);
+    }
+
+    // 행 + 박스 생성
+    for (let r = 0; r < size; r++) {
+
+        let rowHeader = document.createElement("div");
+        rowHeader.className = "header";
+        rowHeader.innerText = r + 1;
+        rowHeader.onclick = () => toggleRow(r);
+        grid.appendChild(rowHeader);
+
+        for (let c = 0; c < size; c++) {
+            let box = document.createElement("div");
+            box.className = "box empty";
+            box.dataset.row = r;
+            box.dataset.col = c;
+            box.innerText = (r * size) + c + 1;
+
+            box.onclick = () => {
+                box.classList.toggle("occupied");
+                box.classList.toggle("empty");
+                updateStats();
+            };
+
+            grid.appendChild(box);
+        }
+    }
+
+    function toggleRow(row) {
+        document.querySelectorAll(`.box[data-row='${row}']`).forEach(box => {
+            box.classList.toggle("occupied");
+            box.classList.toggle("empty");
+        });
+        updateStats();
+    }
+
+    function toggleColumn(col) {
+        document.querySelectorAll(`.box[data-col='${col}']`).forEach(box => {
+            box.classList.toggle("occupied");
+            box.classList.toggle("empty");
+        });
+        updateStats();
+    }
+
+    function updateStats() {
+        let occupied = document.querySelectorAll(".occupied").length;
+        let empty = total - occupied;
+        let rate = ((occupied / total) * 100).toFixed(1);
+
+        document.getElementById("occupiedCount").innerText = occupied;
+        document.getElementById("emptyCount").innerText = empty;
+        document.getElementById("rate").innerText = rate + "%";
+    }
+
+    function resetAll() {
+        document.querySelectorAll(".box").forEach(box => {
+            box.classList.remove("occupied");
+            box.classList.add("empty");
+        });
+        updateStats();
+    }
+</script>
+
 </body>
 </html>
